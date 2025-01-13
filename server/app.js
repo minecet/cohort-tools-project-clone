@@ -1,5 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const PORT = 5005;
 
@@ -13,13 +14,22 @@ const app = express();
 
 
 // MIDDLEWARE
-// Research Team - Set up CORS middleware here:
-// ...
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// Research Team - Set up CORS middleware here:
+// ...
+// Use the CORS middleware with options to allow requests
+app.use(
+  cors({
+    // Add the URLs of allowed origins to this array
+    origin: ['http://localhost:5173', 'http://example.com'],
+  })
+);
+// from specific IP addresses and domains.
 
 
 // ROUTES - https://expressjs.com/en/starter/basic-routing.html
