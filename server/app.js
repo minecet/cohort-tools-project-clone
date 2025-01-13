@@ -29,6 +29,27 @@ app.get("/docs", (req, res) => {
   res.sendFile(__dirname + "/views/docs.html");
 });
 
+/* cohorts json route */
+
+//importing the json
+const cohorts = require("./cohorts.json")
+
+//doing the route
+app.get("/api/cohorts", (request, response) => {
+  response.json(cohorts)
+})
+
+
+/* students json route */
+
+//importing the json
+const students = require("./students.json")
+
+//doing the route
+app.get("/api/students", (request, response) => {
+  response.json(students)
+})
+
 
 // START SERVER
 app.listen(PORT, () => {
