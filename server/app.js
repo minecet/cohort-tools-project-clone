@@ -95,9 +95,204 @@ app.get("/api/students", (req, res) => {
     });
 });
 
+/* students ROUTES */
+
+//POST /api/students - Creates a new student
+
+app.post("/api/students", (req, res) => {
+	Student.create({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    phone: req.body.phone,
+    linkedinUrl: req.body.linkedinUrl,
+    languages: req.body.languages,
+    program: req.body.program,
+    background: req.body.background,
+    image: req.body.image,
+    cohort: req.body.cohort,
+    projects: req.body.projects
+  })
+  .then((createdStudent) => {
+  	console.log("Student added ->", createdStudent);
+  
+    res.status(201).json(createdStudent);
+  })
+  .catch((error) => {
+    console.error("Error while creating the student ->", error);
+    res.status(500).json({ error: "Failed to create the student" });
+  });
+});
+
+// ...
 
 
 
+//GET /api/students/cohort/:cohortId - Retrieves all of the students for a given cohort
+app.get("/api/students/cohort/:cohortId", async (request, response) => {
+  const { cohortId } = request.params;
+
+  if (mongoose.isValidObjectId(cohortId)) {
+    try {
+      const cohortStudents = await Student.find({ cohort: cohortId });
+      
+      response.status(200).json(cohortStudents);
+    } catch (error) {
+      console.log(error); 
+      response.status(500).json(error); 
+    }
+  } else {
+    response.status(400).json({ message: 'Invalid Id' }); 
+  }
+});
+
+//GET /api/students/:studentId - Retrieves a specific student by id
+app.get("/api/students/:studentId", async (request, response) => {
+  const { studentId } = request.params
+  if (mongoose.isValidObjectId(studentId)) {
+      try {
+          const oneStudent = await Student.findById(studentId)
+          .populate("cohort")
+          response.status(200).json(oneStudent)
+      } catch (error) {
+          console.log(error);
+          response.status(500).json(error);
+      }
+  } else {
+      response.status(400).json({ message: 'Invalid Id' })
+  }
+})
+
+
+//PUT /api/students/:studentId - Updates a specific student by id
+
+app.put("/api/students/:studentId", async (request, response) => {
+
+  const { studentId } = request.params
+
+  try {
+      const updatedStudent = await Student.findByIdAndUpdate(studentId, request.body, {
+          new: true,
+          runValidators: true,
+      })
+      response.status(200).json(updatedStudent)
+  } catch (error) {
+      console.log(error);
+      response.status(500).json(error)
+  }
+})
+
+//DELETE /api/students/:studentId
+app.delete("/api/students/:studentId", async (request, response) => {
+  const { studentId } = request.params
+  if (mongoose.isValidObjectId(studentId)) {
+      try {
+          await Student.findByIdAndDelete(studentId)
+          response.status(204).json()
+      } catch (error) {
+          console.log(error);
+          response.status(500).json(error);
+      }
+  } else {
+      response.status(400).json({ message: 'Invalid Id' })
+  }
+})
+
+/* Cohort ROUTES */
+// POST /api/cohorts - Creates a new cohort
+
+app.post("/api/cohorts", (req, res) => {
+  
+  Cohort.create({
+  	cohortSlug: req.body.cohortSlug,
+    cohortName: req.body.cohortName,
+    program: req.body.program,
+    format: req.body.format,
+    campus: req.body.campus,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate,
+    inProgress: req.body.inProgress,
+    programManager: req.body.programManager,
+    leadTeacher: req.body.leadTeacher,
+    totalHours: req.body.totalHours
+  })
+    .then((createdCohort) => {
+        console.log("Cohort created -> ", createdCohort);
+        res.status(201).json(createdCohort);
+        })
+    .catch((error) => {
+      console.error("Error while creating the cohort ->", error);
+      res.status(500).json({ error: "Failed to create the cohort" });
+    });    })    
+    ;  
+   	
+
+
+//GT /api/cohorts - Retrieves all of the cohorts in the database collection
+
+app.get("/api/cohorts", (req, res) => {
+  Cohort.find({})
+    .then((cohorts) => {
+      console.log("Retrieved cohorts ->", cohorts);
+    
+      res.status(200).json(cohorts);
+    })
+    .catch((error) => {
+      console.error("Error while retrieving cohorts ->", error);
+      res.status(500).json({ error: "Failed to retrieve cohorts" });
+    });
+});
+
+// GET /api/cohorts/:cohortId - Retrieves a specific cohort by id
+app.get("/api/cohorts/:cohortId", async (request, response) => {
+  const { cohortId } = request.params
+  if (mongoose.isValidObjectId(cohortId)) {
+      try {
+          const oneCohort = await Student.findById(cohortId)
+          .populate("cohort")
+          response.status(200).json(oneCohort)
+      } catch (error) {
+          console.log(error);
+          response.status(500).json(error);
+      }
+  } else {
+      response.status(400).json({ message: 'Invalid Id' })
+  }
+})
+
+// PUT /api/cohorts/:cohortId - Updates a specific cohort by id
+
+app.put("/api/cohorts/:cohortId", async (request, response) => {
+
+  const { cohortId } = request.params
+
+  try {
+      const updatedCohort = await Student.findByIdAndUpdate(cohortId, request.body, {
+          new: true,
+          runValidators: true,
+      })
+      response.status(200).json(updatedCohort)
+  } catch (error) {
+      console.log(error);
+      response.status(500).json(error)
+  }
+})
+// DELETE /api/cohorts/:cohortId - Deletes a specific cohort by id
+
+app.delete("/api/cohorts/:cohortId", async (request, response) => {
+  const { cohortId } = request.params
+  if (mongoose.isValidObjectId(cohortId)) {
+      try {
+          await Cohort.findByIdAndDelete(cohortId)
+          response.status(204).json()
+      } catch (error) {
+          console.log(error);
+          response.status(500).json(error);
+      }
+  } else {
+      response.status(400).json({ message: 'Invalid Id' })
+  }
+})
 
 
 // START SERVER
@@ -107,6 +302,6 @@ mongoose
   )
   .then(x => {
     console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
-    app.listen(3001, () => console.log('My first app listening on port http://localhost:3001'))
+    app.listen(5173, () => console.log('My first app listening on port http://localhost:5173'))
   })
   .catch(err => console.error('Error connecting to mongo', err))
