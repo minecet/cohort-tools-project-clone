@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const Cohort = require("./models/Cohort.model");
+const Cohort = require("../models/Cohort.model.js");
 
 const router = require('express').Router()
 
@@ -53,8 +53,7 @@ router.get("/:cohortId", async (request, response) => {
     const { cohortId } = request.params
     if (mongoose.isValidObjectId(cohortId)) {
         try {
-            const oneCohort = await Student.findById(cohortId)
-                .populate("cohort")
+            const oneCohort = await Cohort.findById(cohortId)
             response.status(200).json(oneCohort)
         } catch (error) {
             console.log(error);
@@ -72,7 +71,7 @@ router.put("/:cohortId", async (request, response) => {
     const { cohortId } = request.params
 
     try {
-        const updatedCohort = await Student.findByIdAndUpdate(cohortId, request.body, {
+        const updatedCohort = await Cohort.findByIdAndUpdate(cohortId, request.body, {
             new: true,
             runValidators: true,
         })
@@ -84,7 +83,7 @@ router.put("/:cohortId", async (request, response) => {
 })
 // DELETE /api/cohorts/:cohortId - Deletes a specific cohort by id
 
-app.delete("/:cohortId", async (request, response) => {
+router.delete("/:cohortId", async (request, response) => {
     const { cohortId } = request.params
     if (mongoose.isValidObjectId(cohortId)) {
         try {

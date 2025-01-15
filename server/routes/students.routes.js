@@ -1,4 +1,4 @@
-const Student = require("./models/Student.model");
+const Student = require("../models/Student.model");
 const mongoose = require('mongoose')
 
 const router = require('express').Router()
@@ -6,6 +6,7 @@ const router = require('express').Router()
 //  GET  /students - Retrieve all students from the database
 router.get("/", (req, res) => {
     Student.find({})
+        .populate("cohort")
         .then((students) => {
             console.log("Retrieved students ->", students);
 
@@ -53,7 +54,7 @@ router.get("/cohort/:cohortId", async (request, response) => {
 
     if (mongoose.isValidObjectId(cohortId)) {
         try {
-            const cohortStudents = await Student.find({ cohort: cohortId });
+            const cohortStudents = await Student.find({ cohort: cohortId }).populate("cohort");
 
             response.status(200).json(cohortStudents);
         } catch (error) {
