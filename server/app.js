@@ -84,11 +84,11 @@ app.get("/api/cohorts", (req, res) => {
 //  GET  /students - Retrieve all books from the database
 app.get("/api/students", (req, res) => {
   Student.find({})
+    .populate("cohort")
     .then((students) => {
       console.log("Retrieved students ->", students);
-    
       res.status(200).json(students);
-    })
+    }) 
     .catch((error) => {
       console.error("Error while retrieving students ->", error);
       res.status(500).json({ error: "Failed to retrieve students" });
@@ -131,11 +131,11 @@ app.post("/api/students", (req, res) => {
 //GET /api/students/cohort/:cohortId - Retrieves all of the students for a given cohort
 app.get("/api/students/cohort/:cohortId", async (request, response) => {
   const { cohortId } = request.params;
+  
 
   if (mongoose.isValidObjectId(cohortId)) {
     try {
-      const cohortStudents = await Student.find({ cohort: cohortId });
-      
+      const cohortStudents = await Student.find({ cohort: cohortId }).populate("cohort");
       response.status(200).json(cohortStudents);
     } catch (error) {
       console.log(error); 
@@ -148,6 +148,8 @@ app.get("/api/students/cohort/:cohortId", async (request, response) => {
 
 //GET /api/students/:studentId - Retrieves a specific student by id
 app.get("/api/students/:studentId", async (request, response) => {
+
+  
   const { studentId } = request.params
   if (mongoose.isValidObjectId(studentId)) {
       try {
@@ -248,8 +250,8 @@ app.get("/api/cohorts/:cohortId", async (request, response) => {
   const { cohortId } = request.params
   if (mongoose.isValidObjectId(cohortId)) {
       try {
-          const oneCohort = await Student.findById(cohortId)
-          .populate("cohort")
+          const oneCohort = await Cohort.findById(cohortId)
+         // .populate("cohort")
           response.status(200).json(oneCohort)
       } catch (error) {
           console.log(error);
@@ -267,7 +269,7 @@ app.put("/api/cohorts/:cohortId", async (request, response) => {
   const { cohortId } = request.params
 
   try {
-      const updatedCohort = await Student.findByIdAndUpdate(cohortId, request.body, {
+      const updatedCohort = await Cohort.findByIdAndUpdate(cohortId, request.body, {
           new: true,
           runValidators: true,
       })
