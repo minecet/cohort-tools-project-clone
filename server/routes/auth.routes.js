@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken') //NEED TO INSTALL
+const jwt = require('jsonwebtoken')
 const User = require('../models/User.model')
 
 const router = require('express').Router()
-const bcrypt = require('bcryptjs') //NEED TO INSTALL
+const bcrypt = require('bcryptjs')
 const { isAuthenticated } = require('../middlewares/route-guard.middleware')
 
 // POST Signup
