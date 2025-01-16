@@ -4,8 +4,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 
 // app.js
-
-// ...
+const app = express()
 
 //const Cohort = require("./models/Cohort.model");
 //const Student = require("./models/Student.model");
@@ -21,7 +20,6 @@ const PORT = 5005;
 
 
 // INITIALIZE EXPRESS APP - https://expressjs.com/en/4x/api.html#express
-const app = express();
 
 
 // MIDDLEWARE
@@ -30,6 +28,8 @@ app.use(morgan("dev"));
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+
 
 // Research Team - Set up CORS middleware here:
 // ...
@@ -54,6 +54,12 @@ app.get("/docs", (req, res) => {
 
 const indexRoutes = require('./routes/index.routes')
 app.use('/api', indexRoutes)
+
+
+// ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
+require('./error-handling')(app)
+// ...
+
 
 // START SERVER
 mongoose

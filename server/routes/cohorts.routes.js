@@ -5,7 +5,7 @@ const router = require('express').Router()
 
 
 
-router.post("/", (req, res) => {
+router.post("/", (req, res, next) => {
 
     Cohort.create({
         cohortSlug: req.body.cohortSlug,
@@ -26,7 +26,7 @@ router.post("/", (req, res) => {
         })
         .catch((error) => {
             console.error("Error while creating the cohort ->", error);
-            res.status(500).json({ error: "Failed to create the cohort" });
+            next(error)
         });
 })
     ;
@@ -35,7 +35,7 @@ router.post("/", (req, res) => {
 
 //GT /api/cohorts - Retrieves all of the cohorts in the database collection
 
-router.get("/", (req, res) => {
+router.get("/", (req, res, next) => {
     Cohort.find({})
         .then((cohorts) => {
             console.log("Retrieved cohorts ->", cohorts);
@@ -44,12 +44,12 @@ router.get("/", (req, res) => {
         })
         .catch((error) => {
             console.error("Error while retrieving cohorts ->", error);
-            res.status(500).json({ error: "Failed to retrieve cohorts" });
+            next(error)
         });
 });
 
 // GET /api/cohorts/:cohortId - Retrieves a specific cohort by id
-router.get("/:cohortId", async (request, response) => {
+router.get("/:cohortId", async (request, response, next) => {
     const { cohortId } = request.params
     if (mongoose.isValidObjectId(cohortId)) {
         try {
@@ -57,7 +57,7 @@ router.get("/:cohortId", async (request, response) => {
             response.status(200).json(oneCohort)
         } catch (error) {
             console.log(error);
-            response.status(500).json(error);
+            next(error)
         }
     } else {
         response.status(400).json({ message: 'Invalid Id' })
@@ -66,7 +66,7 @@ router.get("/:cohortId", async (request, response) => {
 
 // PUT /api/cohorts/:cohortId - Updates a specific cohort by id
 
-router.put("/:cohortId", async (request, response) => {
+router.put("/:cohortId", async (request, response, next) => {
 
     const { cohortId } = request.params
 
@@ -78,12 +78,12 @@ router.put("/:cohortId", async (request, response) => {
         response.status(200).json(updatedCohort)
     } catch (error) {
         console.log(error);
-        response.status(500).json(error)
+        next(error)
     }
 })
 // DELETE /api/cohorts/:cohortId - Deletes a specific cohort by id
 
-router.delete("/:cohortId", async (request, response) => {
+router.delete("/:cohortId", async (request, response, next) => {
     const { cohortId } = request.params
     if (mongoose.isValidObjectId(cohortId)) {
         try {
@@ -91,7 +91,7 @@ router.delete("/:cohortId", async (request, response) => {
             response.status(204).json()
         } catch (error) {
             console.log(error);
-            response.status(500).json(error);
+            next(error)
         }
     } else {
         response.status(400).json({ message: 'Invalid Id' })

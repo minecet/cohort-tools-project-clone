@@ -3,8 +3,12 @@ const mongoose = require('mongoose')
 
 const router = require('express').Router()
 
+
+/* students ROUTES */
+
+
 //  GET  /students - Retrieve all students from the database
-router.get("/", (req, res) => {
+router.get("/", (req, res, next) => {
     Student.find({})
         .populate("cohort")
         .then((students) => {
@@ -14,15 +18,30 @@ router.get("/", (req, res) => {
         })
         .catch((error) => {
             console.error("Error while retrieving students ->", error);
-            res.status(500).json({ error: "Failed to retrieve students" });
+            next(error);
         });
 });
 
-/* students ROUTES */
+//GET /api/students/:studentId - Retrieves a specific student by id
+router.get("/:studentId", async (request, response, next) => {
+    const { studentId } = request.params
+    if (mongoose.isValidObjectId(studentId)) {
+        try {
+            const oneStudent = await Student.findById(studentId)
+                .populate("cohort")
+            response.status(200).json(oneStudent)
+        } catch (error) {
+            console.log(error);
+            next(error);
+        }
+    } else {
+        response.status(400).json({ message: 'Invalid Id' })
+    }
+})
 
 //POST /api/students - Creates a new student
 
-router.post("/", (req, res) => {
+router.post("/", (req, res, next) => {
     Student.create({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
@@ -43,13 +62,36 @@ router.post("/", (req, res) => {
         })
         .catch((error) => {
             console.error("Error while creating the student ->", error);
-            res.status(500).json({ error: "Failed to create the student" });
+            next(error);
         });
 });
 
+//PUT /api/students/:studentId - Updates a specific student by id
+
+router.put("/:studentId", async (request, response, next) => {
+
+    const { studentId } = request.params
+    
+if (mongoose.isValidObjectId(studentId)) {
+    try {
+        const updatedStudent = await Student.findByIdAndUpdate(studentId, request.body, {
+            new: true,
+            runValidators: true,
+        })
+        response.status(200).json(updatedStudent)
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+} else {
+    response.status(400).json({ message: 'invalid id' })
+}
+    
+})
+
 
 //GET /api/students/cohort/:cohortId - Retrieves all of the students for a given cohort
-router.get("/cohort/:cohortId", async (request, response) => {
+router.get("/cohort/:cohortId", async (request, response, next) => {
     const { cohortId } = request.params;
 
     if (mongoose.isValidObjectId(cohortId)) {
@@ -59,51 +101,16 @@ router.get("/cohort/:cohortId", async (request, response) => {
             response.status(200).json(cohortStudents);
         } catch (error) {
             console.log(error);
-            response.status(500).json(error);
+            next(error);
         }
     } else {
         response.status(400).json({ message: 'Invalid Id' });
     }
 });
 
-//GET /api/students/:studentId - Retrieves a specific student by id
-router.get("/:studentId", async (request, response) => {
-    const { studentId } = request.params
-    if (mongoose.isValidObjectId(studentId)) {
-        try {
-            const oneStudent = await Student.findById(studentId)
-                .populate("cohort")
-            response.status(200).json(oneStudent)
-        } catch (error) {
-            console.log(error);
-            response.status(500).json(error);
-        }
-    } else {
-        response.status(400).json({ message: 'Invalid Id' })
-    }
-})
-
-
-//PUT /api/students/:studentId - Updates a specific student by id
-
-router.put("/:studentId", async (request, response) => {
-
-    const { studentId } = request.params
-
-    try {
-        const updatedStudent = await Student.findByIdAndUpdate(studentId, request.body, {
-            new: true,
-            runValidators: true,
-        })
-        response.status(200).json(updatedStudent)
-    } catch (error) {
-        console.log(error);
-        response.status(500).json(error)
-    }
-})
 
 //DELETE /api/students/:studentId
-router.delete("/:studentId", async (request, response) => {
+router.delete("/:studentId", async (request, response, next) => {
     const { studentId } = request.params
     if (mongoose.isValidObjectId(studentId)) {
         try {
@@ -111,7 +118,7 @@ router.delete("/:studentId", async (request, response) => {
             response.status(204).json()
         } catch (error) {
             console.log(error);
-            response.status(500).json(error);
+            next(error);
         }
     } else {
         response.status(400).json({ message: 'Invalid Id' })
